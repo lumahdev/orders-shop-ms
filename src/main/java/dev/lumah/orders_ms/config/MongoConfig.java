@@ -25,7 +25,7 @@ public class MongoConfig {
         MongoClientSettings settings = MongoClientSettings.builder()
                 .credential(credential)
                 .applyToClusterSettings(builder ->
-                        builder.hosts(List.of(new ServerAddress("localhost", 27017))))
+                        builder.hosts(List.of(new ServerAddress("localhost", 27019))))
                 .build();
 
         return MongoClients.create(settings);
@@ -33,6 +33,6 @@ public class MongoConfig {
 
     @Bean
     public MongoTemplate mongoTemplate(MongoClient mongoClient) {
-        return new MongoTemplate(mongoClient, "products");
+        return new MongoTemplate(mongoClient, "orders");
     }
 }
