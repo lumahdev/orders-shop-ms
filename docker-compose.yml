@@ -3,7 +3,7 @@ services:
     image: mongo:latest
     container_name: orders-mongodb
     ports:
-      - "27019:27019"
+      - "27019:27017"
     environment:
       - MONGO_INITDB_DATABASE=orders
       - MONGO_INITDB_ROOT_USERNAME=lumahdev
