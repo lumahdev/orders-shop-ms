@@ -37,7 +37,7 @@ public class OrderService {
                 .map(this::createOrderItem)
                 .toList();
 
-        BigDecimal total = calculateTotal(items);
+        BigDecimal total = calculateTotal(items, dto.discount());
 
         Order order = buildOrder(dto, items, total);
 
@@ -76,20 +76,21 @@ public class OrderService {
         }
     }
 
-    private BigDecimal calculateTotal(List<OrderItem> items) {
+    private BigDecimal calculateTotal(List<OrderItem> items, BigDecimal orderDiscount) {
 
-        return items.stream()
+        BigDecimal itemsTotal = items.stream()
                 .map(item -> {
-                    BigDecimal discount = item.getDiscount()
-                            .divide(BigDecimal.valueOf(100));
+                    BigDecimal discount = item.getDiscount().divide(BigDecimal.valueOf(100));
 
-                    BigDecimal priceWithDiscount = item.getPrice()
-                            .multiply(BigDecimal.ONE.subtract(discount));
+                    BigDecimal priceWithDiscount = item.getPrice().multiply(BigDecimal.ONE.subtract(discount));
 
-                    return priceWithDiscount
-                            .multiply(BigDecimal.valueOf(item.getQuantity()));
+                    return priceWithDiscount.multiply(BigDecimal.valueOf(item.getQuantity()));
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal discount = orderDiscount.divide(BigDecimal.valueOf(100));
+
+        return itemsTotal.multiply(BigDecimal.ONE.subtract(discount));
     }
 
     private Order buildOrder(CreateOrderRequest dto, List<OrderItem> items, BigDecimal total) {
@@ -106,6 +107,7 @@ public class OrderService {
         order.setStatus(Status.PAYMENT_PENDING);
         order.setItems(items);
         order.setTotal(total);
+        order.setDiscount(dto.discount());
 
         return order;
     }

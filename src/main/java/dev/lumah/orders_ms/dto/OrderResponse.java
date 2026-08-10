@@ -14,9 +14,10 @@ public record OrderResponse(
         String userId,
         List<OrderItem> items,
         Status status,
-        BigDecimal total) {
+        BigDecimal total,
+        BigDecimal discount) {
 
     public static OrderResponse toDto(Order order) {
-        return new OrderResponse(order.getId(), order.getUserId(), order.getItems(), order.getStatus(), order.getTotal());
+        return new OrderResponse(order.getId(), order.getUserId(), order.getItems(), order.getStatus(), order.getTotal(), order.getDiscount());
     }
 }

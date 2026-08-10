@@ -17,4 +17,5 @@ public class Order {
     private Status status;
     private List<OrderItem> items;
     private BigDecimal total;
+    private BigDecimal discount;
 }
