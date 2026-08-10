@@ -1,7 +1,9 @@
 package dev.lumah.orders_ms.service;
 
 import dev.lumah.orders_ms.client.ProductClient;
+import dev.lumah.orders_ms.client.UserClient;
 import dev.lumah.orders_ms.client.dto.ProductResponse;
+import dev.lumah.orders_ms.client.dto.UserResponse;
 import dev.lumah.orders_ms.dto.CreateOrderRequest;
 import dev.lumah.orders_ms.dto.OrderItemRequest;
 import dev.lumah.orders_ms.dto.OrderResponse;
@@ -24,6 +26,9 @@ public class OrderService {
 
     @Autowired
     private ProductClient productClient;
+
+    @Autowired
+    private UserClient userClient;
 
     public OrderResponse createOrder(CreateOrderRequest dto) {
 
@@ -68,7 +73,9 @@ public class OrderService {
 
         Order order = new Order();
 
-        order.setUserId(dto.userId());
+        UserResponse user = userClient.getUserById(dto.userId());
+
+        order.setUserId(user.id());
         order.setStatus(Status.PAYMENT_PENDING);
         order.setItems(items);
 
