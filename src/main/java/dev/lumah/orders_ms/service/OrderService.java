@@ -7,8 +7,7 @@ import dev.lumah.orders_ms.client.dto.UserResponse;
 import dev.lumah.orders_ms.dto.CreateOrderRequest;
 import dev.lumah.orders_ms.dto.OrderItemRequest;
 import dev.lumah.orders_ms.dto.OrderResponse;
-import dev.lumah.orders_ms.exceptions.InsufficientStockException;
-import dev.lumah.orders_ms.exceptions.ProductInactiveException;
+import dev.lumah.orders_ms.exceptions.BusinessException;
 import dev.lumah.orders_ms.model.Order;
 import dev.lumah.orders_ms.model.OrderItem;
 import dev.lumah.orders_ms.model.Status;
@@ -61,11 +60,11 @@ public class OrderService {
     private void validateProduct(ProductResponse product, Integer quantity) {
 
         if (!Boolean.TRUE.equals(product.active())) {
-            throw new ProductInactiveException("Product with id " + product.id() + " is inactive");
+            throw new BusinessException("Produto com id " + product.id() + " inválido.");
         }
 
         if (quantity > product.stock()) {
-            throw new InsufficientStockException("Insufficient stock for product " + product.id());
+            throw new BusinessException("Estoque para o prodduto " + product.id() + "inválido.");
         }
     }
 
