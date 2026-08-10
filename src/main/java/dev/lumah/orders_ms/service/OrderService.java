@@ -15,6 +15,7 @@ import dev.lumah.orders_ms.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -36,7 +37,9 @@ public class OrderService {
                 .map(this::createOrderItem)
                 .toList();
 
-        Order order = buildOrder(dto, items);
+        BigDecimal total = calculateTotal(items);
+
+        Order order = buildOrder(dto, items, total);
 
         Order savedOrder = orderRepository.save(order);
 
@@ -45,13 +48,18 @@ public class OrderService {
 
     private OrderItem createOrderItem(OrderItemRequest item) {
 
-        ProductResponse product = productClient.getProductById(item.productId());
+        ProductResponse product =
+                productClient.getProductById(item.productId());
 
         validateProduct(product, item.quantity());
 
         OrderItem orderItem = new OrderItem();
 
         orderItem.setProductId(product.id());
+        orderItem.setName(product.name());
+        orderItem.setDescription(product.description());
+        orderItem.setPrice(product.price());
+        orderItem.setDiscount(product.discount());
         orderItem.setQuantity(item.quantity());
 
         return orderItem;
@@ -64,19 +72,40 @@ public class OrderService {
         }
 
         if (quantity > product.stock()) {
-            throw new BusinessException("Estoque para o prodduto " + product.id() + "inválido.");
+            throw new BusinessException("Estoque para o produto " + product.id() + " inválido.");
         }
     }
 
-    private Order buildOrder(CreateOrderRequest dto, List<OrderItem> items) {
+    private BigDecimal calculateTotal(List<OrderItem> items) {
 
-        Order order = new Order();
+        return items.stream()
+                .map(item -> {
+                    BigDecimal discount = item.getDiscount()
+                            .divide(BigDecimal.valueOf(100));
+
+                    BigDecimal priceWithDiscount = item.getPrice()
+                            .multiply(BigDecimal.ONE.subtract(discount));
+
+                    return priceWithDiscount
+                            .multiply(BigDecimal.valueOf(item.getQuantity()));
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private Order buildOrder(CreateOrderRequest dto, List<OrderItem> items, BigDecimal total) {
 
         UserResponse user = userClient.getUserById(dto.userId());
+
+        if (!Boolean.TRUE.equals(user.active())) {
+            throw new BusinessException("Usuário com id " + user.id() + " inválido.");
+        }
+
+        Order order = new Order();
 
         order.setUserId(user.id());
         order.setStatus(Status.PAYMENT_PENDING);
         order.setItems(items);
+        order.setTotal(total);
 
         return order;
     }
