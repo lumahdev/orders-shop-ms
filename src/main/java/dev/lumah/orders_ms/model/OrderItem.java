@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -13,6 +15,10 @@ public class OrderItem {
 
     private String productId;
     private Integer quantity;
+    private String name;
+    private String description;
+    private BigDecimal price;
+    private BigDecimal discount;
 
     public OrderItem(String id, Integer quantity) {
         this.productId = id;
