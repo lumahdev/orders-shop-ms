@@ -2,10 +2,13 @@ package dev.lumah.orders_ms.service;
 
 import dev.lumah.orders_ms.dto.request.CreatePaymentRequest;
 import dev.lumah.orders_ms.dto.response.PaymentResponse;
-import dev.lumah.orders_ms.dto.response.PaymentResponse;
-import dev.lumah.orders_ms.model.Order;
-import dev.lumah.orders_ms.model.Payment;
+import dev.lumah.orders_ms.exceptions.BusinessException;
+import dev.lumah.orders_ms.exceptions.OrderNotFoundException;
+import dev.lumah.orders_ms.exceptions.UserNotFoundException;
+import dev.lumah.orders_ms.model.*;
+import dev.lumah.orders_ms.repository.OrderRepository;
 import dev.lumah.orders_ms.repository.PaymentRepository;
+import dev.lumah.orders_ms.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,17 +20,48 @@ public class PaymentService {
     @Autowired
     private PaymentRepository paymentRepository;
 
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private OrderService orderService;
+
+    @Autowired
+    private ProductService productService;
+
+    @Autowired
+    private UserRepository userRepository;
+
     public PaymentResponse createPayment(CreatePaymentRequest dto) {
+
+        User user = userRepository.findById(dto.userId()).orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        if (!Boolean.TRUE.equals(user.getActive())) {
+            throw new BusinessException("Usuário com id " + user.getId() + " inválido.");
+        }
+
+        Order order = orderRepository.findById(dto.orderId()).orElseThrow(() -> new OrderNotFoundException("Order not found"));
+
+        if(order.getStatus() != OrderStatus.PAYMENT_PENDING){
+            throw new BusinessException("Pedido com id" + order.getId() + " inválido.");
+        }
 
         Payment payment = new Payment();
         
-        payment.setUserId(dto.userId());
-        payment.setOrderId(dto.orderId());
+        payment.setUserId(user.getId());
+        payment.setOrderId(order.getId());
         payment.setTotal(dto.total());
         payment.setPaymentStatus(dto.paymentStatus());
         payment.setPaymentType(dto.paymentType());
 
         Payment savedPayment = paymentRepository.save(payment);
+
+        if (payment.getPaymentStatus().equals(PaymentStatus.APPROVED)) {
+            orderService.changeOrderStatus(order, OrderStatus.PROCESSING);
+            for (OrderItem item : order.getItems()) {
+                productService.deduceStock(item.getProductId(), item.getQuantity());
+            }
+        }
 
         return PaymentResponse.toDto(savedPayment);
     }
