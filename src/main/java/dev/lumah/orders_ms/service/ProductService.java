@@ -2,7 +2,9 @@ package dev.lumah.orders_ms.service;
 
 import dev.lumah.orders_ms.dto.request.CreateProductRequest;
 import dev.lumah.orders_ms.dto.response.ProductResponse;
+import dev.lumah.orders_ms.exceptions.InsufficientStockException;
 import dev.lumah.orders_ms.exceptions.ProductNotFoundException;
+import dev.lumah.orders_ms.model.OrderItem;
 import dev.lumah.orders_ms.model.Product;
 import dev.lumah.orders_ms.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,10 +52,19 @@ public class ProductService {
 
     public ProductResponse getProductById(String id) {
 
-        Product product = productRepository
-                .findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("Produto com id " + id + " não encontrado."));
-
+        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Produto com id " + id + " não encontrado."));
         return ProductResponse.toDto(product);
+    }
+
+    public void deduceStock(String productId, Integer quantity) {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException("Product not found"));
+
+        if (product.getStock() < quantity) {
+            throw new InsufficientStockException("Insufficient stock for product: " + productId);
+        }
+
+        product.setStock(product.getStock() - quantity);
+
+        productRepository.save(product);
     }
 }
