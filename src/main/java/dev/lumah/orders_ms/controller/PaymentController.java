@@ -1,7 +1,11 @@
 package dev.lumah.payments_ms.controller;
 
 import dev.lumah.orders_ms.dto.request.CreatePaymentRequest;
+import dev.lumah.orders_ms.dto.response.OrderResponse;
 import dev.lumah.orders_ms.dto.response.PaymentResponse;
+import dev.lumah.orders_ms.exceptions.OrderNotFoundException;
+import dev.lumah.orders_ms.model.Order;
+import dev.lumah.orders_ms.repository.OrderRepository;
 import dev.lumah.orders_ms.service.PaymentService;
 import jakarta.validation.Valid;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -19,13 +23,18 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
     private RabbitTemplate rabbitTemplate;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PaymentResponse createPayment(@RequestBody @Valid CreatePaymentRequest dto) {
         PaymentResponse response = paymentService.createPayment(dto);
-        rabbitTemplate.convertAndSend("queue.orders.paidOrder", response);
+        Order order = orderRepository.findById(dto.orderId()).orElseThrow(() -> new OrderNotFoundException("Order not found"));
+        OrderResponse orderResponse = OrderResponse.toDto(order);
+        rabbitTemplate.convertAndSend("queue.orders.paidOrder", orderResponse);
         return response;
     }
 
