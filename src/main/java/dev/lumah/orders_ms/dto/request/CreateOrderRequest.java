@@ -12,9 +12,5 @@ public record CreateOrderRequest(
 
         @NotEmpty(message = "O pedido deve conter pelo menos um item.")
         @Valid
-        List<CreateOrderItemRequest> items,
-
-        @Max(100)
-        @Min(1)
-        BigDecimal discount
+        List<CreateOrderItemRequest> items
 ) {}

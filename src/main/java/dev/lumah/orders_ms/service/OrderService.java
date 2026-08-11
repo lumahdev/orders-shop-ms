@@ -44,9 +44,10 @@ public class OrderService {
                 .map(this::createOrderItem)
                 .toList();
 
-        BigDecimal total = calculateTotal(items, dto.discount());
+        BigDecimal total = calculateTotal(items);
+        BigDecimal discount = calculateDiscount(items);
 
-        Order order = buildOrder(dto, items, total);
+        Order order = buildOrder(dto, items, total, discount);
 
         Order savedOrder = orderRepository.save(order);
 
@@ -55,7 +56,9 @@ public class OrderService {
 
     private OrderItem createOrderItem(CreateOrderItemRequest item) {
 
-        ProductResponse product = ProductResponse.toDto(productRepository.findById(item.productId()).orElseThrow(() -> new ProductNotFoundException("Product not found")));
+        ProductResponse product = ProductResponse.toDto(
+                productRepository.findById(item.productId()).orElseThrow(() -> new ProductNotFoundException("Product not found"))
+        );
 
         validateProduct(product, item.quantity());
 
@@ -81,11 +84,12 @@ public class OrderService {
         }
     }
 
-    private BigDecimal calculateTotal(List<OrderItem> items, BigDecimal orderDiscount) {
+    private BigDecimal calculateTotal(List<OrderItem> items) {
 
-        BigDecimal itemsTotal = items.stream()
+        return items.stream()
                 .map(item -> {
-                    BigDecimal discount = Objects.requireNonNullElse(item.getDiscount(), BigDecimal.ZERO);
+
+                    BigDecimal discount = validateOrderDiscount(item.getDiscount());
 
                     BigDecimal discountRate = discount.divide(BigDecimal.valueOf(100));
 
@@ -94,17 +98,33 @@ public class OrderService {
                     return priceWithDiscount.multiply(BigDecimal.valueOf(item.getQuantity()));
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal discount = Objects.requireNonNullElse(orderDiscount, BigDecimal.ZERO);
-
-        BigDecimal discountRate = discount.divide(BigDecimal.valueOf(100));
-
-        return itemsTotal.multiply(BigDecimal.ONE.subtract(discountRate));
     }
 
-    private Order buildOrder(CreateOrderRequest dto, List<OrderItem> items, BigDecimal total) {
+    private BigDecimal calculateDiscount(List<OrderItem> items) {
 
-        UserResponse user = UserResponse.toDto(userRepository.findById(dto.userId()).orElseThrow(() -> new UserNotFoundException("User not found")));
+        return items.stream()
+                .map(item -> {
+
+                    BigDecimal discount = validateOrderDiscount(item.getDiscount());
+
+                    BigDecimal itemTotal = item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+
+                    return itemTotal
+                            .multiply(discount)
+                            .divide(BigDecimal.valueOf(100));
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private Order buildOrder(
+            CreateOrderRequest dto,
+            List<OrderItem> items,
+            BigDecimal total,
+            BigDecimal discount) {
+
+        UserResponse user = UserResponse.toDto(
+                userRepository.findById(dto.userId()).orElseThrow(() -> new UserNotFoundException("User not found"))
+        );
 
         if (!Boolean.TRUE.equals(user.active())) {
             throw new BusinessException("Usuário com id " + user.id() + " inválido.");
@@ -116,7 +136,7 @@ public class OrderService {
         order.setStatus(Status.PAYMENT_PENDING);
         order.setItems(items);
         order.setTotal(total);
-        order.setDiscount(validateOrderDiscount(dto.discount()));
+        order.setDiscount(discount);
         order.setUserMail(user.email());
         order.setUserName(user.name());
         order.setUserPhone(user.phone());
