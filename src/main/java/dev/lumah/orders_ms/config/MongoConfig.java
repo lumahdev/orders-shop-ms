@@ -25,7 +25,7 @@ public class MongoConfig {
         MongoClientSettings settings = MongoClientSettings.builder()
                 .credential(credential)
                 .applyToClusterSettings(builder ->
-                        builder.hosts(List.of(new ServerAddress("localhost", 27019))))
+                        builder.hosts(List.of(new ServerAddress("localhost", 27017))))
                 .build();
 
         return MongoClients.create(settings);
