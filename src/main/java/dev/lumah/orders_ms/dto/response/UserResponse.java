@@ -15,7 +15,8 @@ public record UserResponse(
         String phone,
         Address address,
         LocalDate creationDate,
-        Boolean active
+        Boolean active,
+        Boolean emailValidated
 ) {
     public static UserResponse toDto(User user) {
         return new UserResponse(
@@ -26,7 +27,8 @@ public record UserResponse(
                 user.getPhone(),
                 user.getAddress(),
                 user.getCreationDate(),
-                user.getActive()
+                user.getActive(),
+                user.getEmailValidated()
         );
     }
 }

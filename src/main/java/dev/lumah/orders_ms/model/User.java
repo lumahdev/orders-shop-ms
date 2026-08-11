@@ -19,4 +19,5 @@ public class User {
     private Address address;
     private LocalDate creationDate;
     private Boolean active;
+    private Boolean emailValidated;
 }

@@ -44,6 +44,7 @@ public class UserService {
         user.setCreationDate(getCreationDate(dto.creationDate()));
         user.setActive(getActive(dto.active()));
         user.setAddress(address);
+        user.setEmailValidated(false);
         User savedUser = userRepository.save(user);
 
         return UserResponse.toDto(savedUser);
@@ -58,6 +59,12 @@ public class UserService {
 
     public UserResponse getUserById(String id) {
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Usuário com id " + id + " não encontrado."));
+        return UserResponse.toDto(user);
+    }
+
+    public UserResponse validateUserEmail(String id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Usuário com id " + id + " não encontrado."));
+        user.setEmailValidated(true);
         return UserResponse.toDto(user);
     }
 }
