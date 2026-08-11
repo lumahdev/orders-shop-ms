@@ -4,13 +4,10 @@ import dev.lumah.orders_ms.dto.request.CreateOrderRequest;
 import dev.lumah.orders_ms.dto.request.CreateOrderItemRequest;
 import dev.lumah.orders_ms.dto.response.OrderResponse;
 import dev.lumah.orders_ms.dto.response.ProductResponse;
-import dev.lumah.orders_ms.dto.response.UserResponse;
 import dev.lumah.orders_ms.exceptions.BusinessException;
 import dev.lumah.orders_ms.exceptions.ProductNotFoundException;
 import dev.lumah.orders_ms.exceptions.UserNotFoundException;
-import dev.lumah.orders_ms.model.Order;
-import dev.lumah.orders_ms.model.OrderItem;
-import dev.lumah.orders_ms.model.Status;
+import dev.lumah.orders_ms.model.*;
 import dev.lumah.orders_ms.repository.OrderRepository;
 import dev.lumah.orders_ms.repository.ProductRepository;
 import dev.lumah.orders_ms.repository.UserRepository;
@@ -56,31 +53,29 @@ public class OrderService {
 
     private OrderItem createOrderItem(CreateOrderItemRequest item) {
 
-        ProductResponse product = ProductResponse.toDto(
-                productRepository.findById(item.productId()).orElseThrow(() -> new ProductNotFoundException("Product not found"))
-        );
+        Product product = productRepository.findById(item.productId()).orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
         validateProduct(product, item.quantity());
 
         OrderItem orderItem = new OrderItem();
 
-        orderItem.setProductId(product.id());
-        orderItem.setName(product.name());
-        orderItem.setPrice(product.price());
-        orderItem.setDiscount(product.discount());
+        orderItem.setProductId(product.getId());
+        orderItem.setName(product.getName());
+        orderItem.setPrice(product.getPrice());
+        orderItem.setDiscount(product.getDiscount());
         orderItem.setQuantity(item.quantity());
 
         return orderItem;
     }
 
-    private void validateProduct(ProductResponse product, Integer quantity) {
+    private void validateProduct(Product product, Integer quantity) {
 
-        if (!Boolean.TRUE.equals(product.active())) {
-            throw new BusinessException("Produto com id " + product.id() + " inválido.");
+        if (!Boolean.TRUE.equals(product.getActive())) {
+            throw new BusinessException("Produto com id " + product.getId() + " inválido.");
         }
 
-        if (quantity > product.stock()) {
-            throw new BusinessException("Estoque para o produto " + product.id() + " inválido.");
+        if (quantity > product.getStock()) {
+            throw new BusinessException("Estoque para o produto " + product.getId() + " inválido.");
         }
     }
 
@@ -122,25 +117,23 @@ public class OrderService {
             BigDecimal total,
             BigDecimal discount) {
 
-        UserResponse user = UserResponse.toDto(
-                userRepository.findById(dto.userId()).orElseThrow(() -> new UserNotFoundException("User not found"))
-        );
+        User user = userRepository.findById(dto.userId()).orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        if (!Boolean.TRUE.equals(user.active())) {
-            throw new BusinessException("Usuário com id " + user.id() + " inválido.");
+        if (!Boolean.TRUE.equals(user.getActive())) {
+            throw new BusinessException("Usuário com id " + user.getId() + " inválido.");
         }
 
         Order order = new Order();
 
-        order.setUserId(user.id());
-        order.setStatus(Status.PAYMENT_PENDING);
+        order.setUserId(user.getId());
+        order.setStatus(OrderStatus.PAYMENT_PENDING);
         order.setItems(items);
         order.setTotal(total);
         order.setDiscount(discount);
-        order.setUserMail(user.email());
-        order.setUserName(user.name());
-        order.setUserPhone(user.phone());
-        order.setUserAddress(user.address());
+        order.setUserMail(user.getEmail());
+        order.setUserName(user.getName());
+        order.setUserPhone(user.getPhone());
+        order.setUserAddress(user.getAddress());
 
         return order;
     }
