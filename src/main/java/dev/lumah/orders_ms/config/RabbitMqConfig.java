@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMqConfig {
 
-    public static final String ORDER_PAYMENT_PENDING = "order.payment.pending";
+    public static final String QUEUE_ORDER_PENDING_PAYMENT = "order.payment.pending";
 
     @Bean
     public JacksonJsonMessageConverter messageConverter() {
@@ -27,7 +27,9 @@ public class RabbitMqConfig {
     @Bean
     Queue orderPaymentPending() {
         return QueueBuilder
-                .durable(ORDER_PAYMENT_PENDING)
+                .durable(QUEUE_ORDER_PENDING_PAYMENT)
+                .deadLetterExchange("email.dlx")
+                .deadLetterRoutingKey("emails.dlq")
                 .build();
     }
 }

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static dev.lumah.orders_ms.config.RabbitMqConfig.ORDER_PAYMENT_PENDING;
+import static dev.lumah.orders_ms.config.RabbitMqConfig.QUEUE_ORDER_PENDING_PAYMENT;
 
 @RestController
 @RequestMapping("/orders")
@@ -27,7 +27,7 @@ public class OrderController {
     @ResponseStatus(HttpStatus.CREATED)
     public OrderResponse createOrder(@RequestBody @Valid CreateOrderRequest dto) {
         OrderResponse response = orderService.createOrder(dto);
-        rabbitTemplate.convertAndSend(ORDER_PAYMENT_PENDING, response);
+        rabbitTemplate.convertAndSend(QUEUE_ORDER_PENDING_PAYMENT, response);
         return response;
     }
 
