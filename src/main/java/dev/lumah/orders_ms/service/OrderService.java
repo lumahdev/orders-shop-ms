@@ -1,6 +1,10 @@
 package dev.lumah.orders_ms.service;
 
-import dev.lumah.orders_ms.dto.*;
+import dev.lumah.orders_ms.dto.request.CreateOrderRequest;
+import dev.lumah.orders_ms.dto.request.CreateOrderItemRequest;
+import dev.lumah.orders_ms.dto.response.OrderResponse;
+import dev.lumah.orders_ms.dto.response.ProductResponse;
+import dev.lumah.orders_ms.dto.response.UserResponse;
 import dev.lumah.orders_ms.exceptions.BusinessException;
 import dev.lumah.orders_ms.exceptions.ProductNotFoundException;
 import dev.lumah.orders_ms.exceptions.UserNotFoundException;
@@ -49,7 +53,7 @@ public class OrderService {
         return OrderResponse.toDto(savedOrder);
     }
 
-    private OrderItem createOrderItem(OrderItemRequest item) {
+    private OrderItem createOrderItem(CreateOrderItemRequest item) {
 
         ProductResponse product = ProductResponse.toDto(productRepository.findById(item.productId()).orElseThrow(() -> new ProductNotFoundException("Product not found")));
 
@@ -59,7 +63,6 @@ public class OrderService {
 
         orderItem.setProductId(product.id());
         orderItem.setName(product.name());
-        orderItem.setDescription(product.description());
         orderItem.setPrice(product.price());
         orderItem.setDiscount(product.discount());
         orderItem.setQuantity(item.quantity());
@@ -114,6 +117,10 @@ public class OrderService {
         order.setItems(items);
         order.setTotal(total);
         order.setDiscount(validateOrderDiscount(dto.discount()));
+        order.setUserMail(user.email());
+        order.setUserName(user.name());
+        order.setUserPhone(user.phone());
+        order.setUserAddress(user.address());
 
         return order;
     }

@@ -1,11 +1,11 @@
-package dev.lumah.orders_ms.dto;
+package dev.lumah.orders_ms.dto.request;
 
 import dev.lumah.orders_ms.model.OrderItem;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record OrderItemRequest(
+public record CreateOrderItemRequest(
 
         @NotBlank(message = "Id do produto é obrigatório.")
         String productId,

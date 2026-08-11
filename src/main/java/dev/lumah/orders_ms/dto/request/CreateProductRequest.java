@@ -1,4 +1,4 @@
-package dev.lumah.orders_ms.dto;
+package dev.lumah.orders_ms.dto.request;
 
 import jakarta.validation.constraints.*;
 

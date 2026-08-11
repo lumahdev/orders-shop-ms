@@ -18,4 +18,8 @@ public class Order {
     private List<OrderItem> items;
     private BigDecimal total;
     private BigDecimal discount;
+    private String userMail;
+    private String userName;
+    private String userPhone;
+    private Address userAddress;
 }

@@ -1,4 +1,4 @@
-package dev.lumah.orders_ms.dto;
+package dev.lumah.orders_ms.dto.request;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -12,7 +12,7 @@ public record CreateOrderRequest(
 
         @NotEmpty(message = "O pedido deve conter pelo menos um item.")
         @Valid
-        List<OrderItemRequest> items,
+        List<CreateOrderItemRequest> items,
 
         @Max(100)
         @Min(1)

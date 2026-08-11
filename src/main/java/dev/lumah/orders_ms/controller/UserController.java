@@ -1,7 +1,7 @@
 package dev.lumah.orders_ms.controller;
 
-import dev.lumah.orders_ms.dto.CreateUserRequest;
-import dev.lumah.orders_ms.dto.UserResponse;
+import dev.lumah.orders_ms.dto.request.CreateUserRequest;
+import dev.lumah.orders_ms.dto.response.UserResponse;
 import dev.lumah.orders_ms.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
 package dev.lumah.orders_ms.service;
 
-import dev.lumah.orders_ms.dto.CreateProductRequest;
-import dev.lumah.orders_ms.dto.ProductResponse;
+import dev.lumah.orders_ms.dto.request.CreateProductRequest;
+import dev.lumah.orders_ms.dto.response.ProductResponse;
 import dev.lumah.orders_ms.exceptions.ProductNotFoundException;
 import dev.lumah.orders_ms.model.Product;
 import dev.lumah.orders_ms.repository.ProductRepository;

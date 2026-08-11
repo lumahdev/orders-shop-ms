@@ -1,11 +1,11 @@
-package dev.lumah.orders_ms.dto;
+package dev.lumah.orders_ms.dto.response;
 
 import dev.lumah.orders_ms.model.Product;
 import lombok.Builder;
 
 import java.math.BigDecimal;
 
-@Builder
+//@Builder
 public record ProductResponse(
         String id,
         String name,
@@ -16,6 +16,14 @@ public record ProductResponse(
         Boolean active) {
 
     public static ProductResponse toDto(Product product) {
-        return new ProductResponse(product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getDiscount(), product.getStock(), product.getActive());
+        return new ProductResponse(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getDiscount(),
+                product.getStock(),
+                product.getActive()
+        );
     }
 }

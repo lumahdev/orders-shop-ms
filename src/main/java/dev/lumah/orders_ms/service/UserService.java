@@ -1,7 +1,7 @@
 package dev.lumah.orders_ms.service;
 
-import dev.lumah.orders_ms.dto.CreateUserRequest;
-import dev.lumah.orders_ms.dto.UserResponse;
+import dev.lumah.orders_ms.dto.request.CreateUserRequest;
+import dev.lumah.orders_ms.dto.response.UserResponse;
 import dev.lumah.orders_ms.exceptions.UserNotFoundException;
 import dev.lumah.orders_ms.model.Address;
 import dev.lumah.orders_ms.model.User;

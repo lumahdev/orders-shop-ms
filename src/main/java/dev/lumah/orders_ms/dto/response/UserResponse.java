@@ -1,4 +1,4 @@
-package dev.lumah.orders_ms.dto;
+package dev.lumah.orders_ms.dto.response;
 
 import dev.lumah.orders_ms.model.Address;
 import dev.lumah.orders_ms.model.User;
@@ -6,7 +6,7 @@ import lombok.Builder;
 
 import java.time.LocalDate;
 
-@Builder
+//@Builder
 public record UserResponse(
         String id,
         String name,
@@ -18,6 +18,15 @@ public record UserResponse(
         Boolean active
 ) {
     public static UserResponse toDto(User user) {
-        return new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getPassword(), user.getPhone(), user.getAddress(), user.getCreationDate(), user.getActive());
+        return new UserResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getPassword(),
+                user.getPhone(),
+                user.getAddress(),
+                user.getCreationDate(),
+                user.getActive()
+        );
     }
 }

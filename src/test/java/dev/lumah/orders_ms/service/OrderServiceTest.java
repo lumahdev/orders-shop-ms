@@ -1,10 +1,9 @@
 package dev.lumah.orders_ms.service;
 
-import dev.lumah.orders_ms.dto.CreateOrderRequest;
-import dev.lumah.orders_ms.dto.OrderItemRequest;
-import dev.lumah.orders_ms.dto.OrderResponse;
+import dev.lumah.orders_ms.dto.request.CreateOrderRequest;
+import dev.lumah.orders_ms.dto.request.CreateOrderItemRequest;
+import dev.lumah.orders_ms.dto.response.OrderResponse;
 import dev.lumah.orders_ms.model.Order;
-import dev.lumah.orders_ms.model.OrderItem;
 import dev.lumah.orders_ms.model.Status;
 import dev.lumah.orders_ms.repository.OrderRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,8 +48,8 @@ class OrderServiceTest {
             void createOrder() {
 
                 // Arrange
-                OrderItemRequest orderItem1 = new OrderItemRequest("1", 5);
-                OrderItemRequest orderItem2 = new OrderItemRequest("2", 3);
+                CreateOrderItemRequest orderItem1 = new CreateOrderItemRequest("1", 5);
+                CreateOrderItemRequest orderItem2 = new CreateOrderItemRequest("2", 3);
 
                 CreateOrderRequest request = new CreateOrderRequest(
                         "1",
@@ -65,7 +63,7 @@ class OrderServiceTest {
                 savedOrder.setItems(
                         request.items()
                                 .stream()
-                                .map(OrderItemRequest::toEntity)
+                                .map(CreateOrderItemRequest::toEntity)
                                 .toList()
                 );
 

@@ -1,7 +1,7 @@
 package dev.lumah.orders_ms.controller;
 
-import dev.lumah.orders_ms.dto.CreateOrderRequest;
-import dev.lumah.orders_ms.dto.OrderResponse;
+import dev.lumah.orders_ms.dto.request.CreateOrderRequest;
+import dev.lumah.orders_ms.dto.response.OrderResponse;
 import dev.lumah.orders_ms.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
