@@ -29,8 +29,8 @@ public class OrderService {
     @Autowired
     private UserRepository userRepository;
 
-    private BigDecimal validateOrderDiscount(BigDecimal discount){
-        return (BigDecimal) Objects.requireNonNullElse(discount, 0);
+    private BigDecimal validateOrderDiscount(BigDecimal discount) {
+        return Objects.requireNonNullElse(discount, BigDecimal.ZERO);
     }
 
     public OrderResponse createOrder(CreateOrderRequest dto) {
