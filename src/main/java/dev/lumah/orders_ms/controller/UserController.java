@@ -41,8 +41,7 @@ public class UserController {
         return userService.getUserById(id);
     }
 
-    @PostMapping("/{id}")
-    @ResponseStatus(HttpStatus.CREATED)
+    @GetMapping("/validate-email/{id}")
     public UserResponse validateUserEmail(@PathVariable String id) {
         return userService.validateUserEmail(id);
     }
