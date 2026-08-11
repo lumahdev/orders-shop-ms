@@ -25,7 +25,7 @@ public class PaymentController {
     @ResponseStatus(HttpStatus.CREATED)
     public PaymentResponse createPayment(@RequestBody @Valid CreatePaymentRequest dto) {
         PaymentResponse response = paymentService.createPayment(dto);
-//        rabbitTemplate.convertAndSend("queue.payment.pendingPayment", response);
+        rabbitTemplate.convertAndSend("queue.orders.paidOrder", response);
         return response;
     }
 
