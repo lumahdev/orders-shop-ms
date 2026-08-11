@@ -1,0 +1,7 @@
+package dev.lumah.orders_ms.exceptions;
+
+public class ProductNotFoundException extends RuntimeException {
+    public ProductNotFoundException(String message) {
+        super(message);
+    }
+}
