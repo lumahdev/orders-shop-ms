@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class OrderService {
@@ -27,6 +28,10 @@ public class OrderService {
 
     @Autowired
     private UserRepository userRepository;
+
+    private BigDecimal validateOrderDiscount(BigDecimal discount){
+        return (BigDecimal) Objects.requireNonNullElse(discount, 0);
+    }
 
     public OrderResponse createOrder(CreateOrderRequest dto) {
 
@@ -77,17 +82,21 @@ public class OrderService {
 
         BigDecimal itemsTotal = items.stream()
                 .map(item -> {
-                    BigDecimal discount = item.getDiscount().divide(BigDecimal.valueOf(100));
+                    BigDecimal discount = Objects.requireNonNullElse(item.getDiscount(), BigDecimal.ZERO);
 
-                    BigDecimal priceWithDiscount = item.getPrice().multiply(BigDecimal.ONE.subtract(discount));
+                    BigDecimal discountRate = discount.divide(BigDecimal.valueOf(100));
+
+                    BigDecimal priceWithDiscount = item.getPrice().multiply(BigDecimal.ONE.subtract(discountRate));
 
                     return priceWithDiscount.multiply(BigDecimal.valueOf(item.getQuantity()));
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal discount = orderDiscount.divide(BigDecimal.valueOf(100));
+        BigDecimal discount = Objects.requireNonNullElse(orderDiscount, BigDecimal.ZERO);
 
-        return itemsTotal.multiply(BigDecimal.ONE.subtract(discount));
+        BigDecimal discountRate = discount.divide(BigDecimal.valueOf(100));
+
+        return itemsTotal.multiply(BigDecimal.ONE.subtract(discountRate));
     }
 
     private Order buildOrder(CreateOrderRequest dto, List<OrderItem> items, BigDecimal total) {
@@ -104,7 +113,7 @@ public class OrderService {
         order.setStatus(Status.PAYMENT_PENDING);
         order.setItems(items);
         order.setTotal(total);
-        order.setDiscount(dto.discount());
+        order.setDiscount(validateOrderDiscount(dto.discount()));
 
         return order;
     }
