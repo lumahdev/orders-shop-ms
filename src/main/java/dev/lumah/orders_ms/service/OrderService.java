@@ -1,17 +1,15 @@
 package dev.lumah.orders_ms.service;
 
-import dev.lumah.orders_ms.client.ProductClient;
-import dev.lumah.orders_ms.client.UserClient;
-import dev.lumah.orders_ms.client.dto.ProductResponse;
-import dev.lumah.orders_ms.client.dto.UserResponse;
-import dev.lumah.orders_ms.dto.CreateOrderRequest;
-import dev.lumah.orders_ms.dto.OrderItemRequest;
-import dev.lumah.orders_ms.dto.OrderResponse;
+import dev.lumah.orders_ms.dto.*;
 import dev.lumah.orders_ms.exceptions.BusinessException;
+import dev.lumah.orders_ms.exceptions.ProductNotFoundException;
+import dev.lumah.orders_ms.exceptions.UserNotFoundException;
 import dev.lumah.orders_ms.model.Order;
 import dev.lumah.orders_ms.model.OrderItem;
 import dev.lumah.orders_ms.model.Status;
 import dev.lumah.orders_ms.repository.OrderRepository;
+import dev.lumah.orders_ms.repository.ProductRepository;
+import dev.lumah.orders_ms.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +23,10 @@ public class OrderService {
     private OrderRepository orderRepository;
 
     @Autowired
-    private ProductClient productClient;
+    private ProductRepository productRepository;
 
     @Autowired
-    private UserClient userClient;
+    private UserRepository userRepository;
 
     public OrderResponse createOrder(CreateOrderRequest dto) {
 
@@ -48,8 +46,7 @@ public class OrderService {
 
     private OrderItem createOrderItem(OrderItemRequest item) {
 
-        ProductResponse product =
-                productClient.getProductById(item.productId());
+        ProductResponse product = ProductResponse.toDto(productRepository.findById(item.productId()).orElseThrow(() -> new ProductNotFoundException("Product not found")));
 
         validateProduct(product, item.quantity());
 
@@ -95,7 +92,7 @@ public class OrderService {
 
     private Order buildOrder(CreateOrderRequest dto, List<OrderItem> items, BigDecimal total) {
 
-        UserResponse user = userClient.getUserById(dto.userId());
+        UserResponse user = UserResponse.toDto(userRepository.findById(dto.userId()).orElseThrow(() -> new UserNotFoundException("User not found")));
 
         if (!Boolean.TRUE.equals(user.active())) {
             throw new BusinessException("Usuário com id " + user.id() + " inválido.");
