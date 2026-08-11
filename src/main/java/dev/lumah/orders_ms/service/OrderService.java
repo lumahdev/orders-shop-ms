@@ -3,8 +3,8 @@ package dev.lumah.orders_ms.service;
 import dev.lumah.orders_ms.dto.request.CreateOrderRequest;
 import dev.lumah.orders_ms.dto.request.CreateOrderItemRequest;
 import dev.lumah.orders_ms.dto.response.OrderResponse;
-import dev.lumah.orders_ms.dto.response.ProductResponse;
 import dev.lumah.orders_ms.exceptions.BusinessException;
+import dev.lumah.orders_ms.exceptions.InsufficientStockException;
 import dev.lumah.orders_ms.exceptions.ProductNotFoundException;
 import dev.lumah.orders_ms.exceptions.UserNotFoundException;
 import dev.lumah.orders_ms.model.*;
@@ -75,7 +75,7 @@ public class OrderService {
         }
 
         if (quantity > product.getStock()) {
-            throw new BusinessException("Estoque para o produto " + product.getId() + " inválido.");
+            throw new InsufficientStockException("Insufficient stock for product: " + product.getId());
         }
     }
 
@@ -148,5 +148,10 @@ public class OrderService {
     public OrderResponse getOrderById(String id) {
         Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Pedido não encontrado."));
         return OrderResponse.toDto(order);
+    }
+
+    public void changeOrderStatus(Order order, OrderStatus status) {
+        order.setStatus(status);
+        orderRepository.save(order);
     }
 }
