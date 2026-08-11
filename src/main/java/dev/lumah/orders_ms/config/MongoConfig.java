@@ -33,6 +33,6 @@ public class MongoConfig {
 
     @Bean
     public MongoTemplate mongoTemplate(MongoClient mongoClient) {
-        return new MongoTemplate(mongoClient, "orders");
+        return new MongoTemplate(mongoClient, "orders_db");
     }
 }
