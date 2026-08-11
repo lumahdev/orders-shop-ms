@@ -1,9 +1,8 @@
 package dev.lumah.orders_ms.dto.response;
 
 import dev.lumah.orders_ms.model.Address;
-import dev.lumah.orders_ms.model.Status;
+import dev.lumah.orders_ms.model.OrderStatus;
 import dev.lumah.orders_ms.model.Order;
-import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -13,7 +12,7 @@ public record OrderResponse(
         String id,
         String userId,
         List<OrderItemResponse> items,
-        Status status,
+        OrderStatus status,
         BigDecimal total,
         BigDecimal discount,
         String userMail,

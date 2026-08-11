@@ -14,7 +14,7 @@ public class Order {
     @Id
     private String id;
     private String userId;
-    private Status status;
+    private OrderStatus status;
     private List<OrderItem> items;
     private BigDecimal total;
     private BigDecimal discount;
