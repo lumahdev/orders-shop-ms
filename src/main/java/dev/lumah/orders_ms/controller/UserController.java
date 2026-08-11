@@ -25,7 +25,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse createUser(@RequestBody @Valid CreateUserRequest dto) {
         UserResponse response = userService.createUser(dto);
-        rabbitTemplate.convertAndSend("queue.user.validateEmail", response.id());
+        rabbitTemplate.convertAndSend("queue.user.validateEmail", dto);
         return response;
     }
 
