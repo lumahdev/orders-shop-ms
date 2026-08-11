@@ -14,7 +14,16 @@ services:
       - configdb:/data/configdb
       - mongot:/data/mongot
 
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq-emailms
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
 volumes:
   db:
   configdb:
   mongot:
+  rabbitmq_data:
+  rabbitmq_log:
