@@ -2,7 +2,6 @@ package dev.lumah.orders_ms.service;
 
 import dev.lumah.orders_ms.dto.request.CreateUserRequest;
 import dev.lumah.orders_ms.dto.response.UserResponse;
-import dev.lumah.orders_ms.exceptions.InactiveUserException;
 import dev.lumah.orders_ms.exceptions.UserNotFoundException;
 import dev.lumah.orders_ms.model.Address;
 import dev.lumah.orders_ms.model.User;
@@ -28,14 +27,8 @@ public class UserService {
         return Objects.requireNonNullElse(active, true);
     }
 
-    public User findUser(String id) {
+    private User findUser(String id) {
         return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-    }
-
-    public void validateUser(User user) {
-        if (!Boolean.TRUE.equals(user.getActive())) {
-            throw new InactiveUserException();
-        }
     }
 
     public UserResponse createUser(CreateUserRequest dto) {
@@ -69,8 +62,7 @@ public class UserService {
     }
 
     public UserResponse getUserById(String id) {
-        User user = findUser(id);
-        return UserResponse.toDto(user);
+        return UserResponse.toDto(findUser(id));
     }
 
     public UserResponse validateUserEmail(String id) {
