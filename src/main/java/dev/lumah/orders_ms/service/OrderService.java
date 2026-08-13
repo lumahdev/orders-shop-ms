@@ -115,6 +115,12 @@ public class OrderService {
         return order;
     }
 
+    public void validateOrder(Order order) {
+        if(order.getStatus() != OrderStatus.PAYMENT_PENDING){
+            throw new BusinessException("Pedido com id" + order.getId() + " inválido.");
+        }
+    }
+
     public Order findOrder(String id) {
         return orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Pedido não encontrado."));
     }

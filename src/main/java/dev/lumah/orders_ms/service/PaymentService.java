@@ -28,11 +28,9 @@ public class PaymentService {
 
         userService.validateUser(user);
 
-        Order order = orderRepository.findById(dto.orderId()).orElseThrow(() -> new OrderNotFoundException("Order not found"));
+        Order order = orderService.findOrder(dto.orderId());
 
-        if(order.getStatus() != OrderStatus.PAYMENT_PENDING){
-            throw new BusinessException("Pedido com id" + order.getId() + " inválido.");
-        }
+        orderService.validateOrder(order);
 
         Payment payment = new Payment();
         
