@@ -151,4 +151,16 @@ public class OrderService {
         order.setStatus(status);
         orderRepository.save(order);
     }
+
+    public OrderResponse sendOrder(String id) {
+        Order order = findOrder(id);
+
+        if(order.getStatus() != OrderStatus.PROCESSING){
+            throw new CantSendException();
+        }
+
+        order.setStatus(OrderStatus.SENT);
+        Order savedOrder = orderRepository.save(order);
+        return OrderResponse.toDto(savedOrder);
+    }
 }

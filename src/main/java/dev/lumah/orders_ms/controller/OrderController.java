@@ -44,4 +44,12 @@ public class OrderController {
     public OrderResponse getOrderById(@PathVariable String id) {
         return orderService.getOrderById(id);
     }
+
+    @PutMapping("/send/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public OrderResponse sendOrder(@PathVariable String id) {
+        OrderResponse response = orderService.sendOrder(id);
+        rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.order.sent", response);
+        return response;
+    }
 }
