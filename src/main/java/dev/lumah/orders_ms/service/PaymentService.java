@@ -72,8 +72,6 @@ public class PaymentService {
 
         switch(payment.getPaymentStatus()) {
             case PaymentStatus.APPROVED -> rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.payment.approved", responseToDto);
-            case PaymentStatus.CANCELED -> rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.payment.canceled", responseToDto);
-            case PaymentStatus.EXPIRED -> rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.payment.expired", responseToDto);
             case PaymentStatus.REFUSED -> rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.payment.refused", responseToDto);
             default -> throw new InvalidPaymentException();
         }
