@@ -33,25 +33,20 @@ public class ValidationService {
 
 	Product validateProduct(String id, Integer quantity) {
 		Product product = productService.findProduct(id);
-
 		if (!Boolean.TRUE.equals(product.getActive())) {
 			throw new InactiveProductException();
 		}
-
 		if (quantity > product.getStock()) {
 			throw new InsufficientStockException();
 		}
-
 		return product;
 	}
 
 	Order validateOrder(String id) {
 		Order order = orderService.findOrder(id);
-
 		if(order.getStatus() != OrderStatus.PAYMENT_PENDING){
 			throw new CantPayException();
 		}
-		
 		return order;
 	}
 }
