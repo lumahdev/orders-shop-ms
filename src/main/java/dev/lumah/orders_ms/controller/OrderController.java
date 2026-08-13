@@ -52,4 +52,12 @@ public class OrderController {
         rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.order.sent", response);
         return response;
     }
+
+    @PutMapping("/arrived/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public OrderResponse arrivedOrder(@PathVariable String id) {
+        OrderResponse response = orderService.arrivedOrder(id);
+        rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.order.arrived", response);
+        return response;
+    }
 }

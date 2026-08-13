@@ -163,4 +163,16 @@ public class OrderService {
         Order savedOrder = orderRepository.save(order);
         return OrderResponse.toDto(savedOrder);
     }
+
+    public OrderResponse arrivedOrder(String id) {
+        Order order = findOrder(id);
+
+        if(order.getStatus() != OrderStatus.SENT){
+            throw new CantArriveException();
+        }
+
+        order.setStatus(OrderStatus.ARRIVED);
+        Order savedOrder = orderRepository.save(order);
+        return OrderResponse.toDto(savedOrder);
+    }
 }
