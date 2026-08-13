@@ -2,6 +2,7 @@ package dev.lumah.orders_ms.service;
 
 import dev.lumah.orders_ms.dto.request.CreateUserRequest;
 import dev.lumah.orders_ms.dto.response.UserResponse;
+import dev.lumah.orders_ms.exceptions.InactiveUserException;
 import dev.lumah.orders_ms.exceptions.UserNotFoundException;
 import dev.lumah.orders_ms.model.Address;
 import dev.lumah.orders_ms.model.User;
@@ -20,7 +21,7 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private ValidationService validationService;
+    private UserService userService;
 
     private LocalDate getCreationDate(LocalDate date) {
         return Objects.requireNonNullElseGet(date, LocalDate::now);
@@ -69,7 +70,12 @@ public class UserService {
     }
 
     public UserResponse validateUserEmail(String id) {
-        User user = validationService.validateUser(id);
+        User user = userService.findUser(id);
+
+        if (!Boolean.TRUE.equals(user.getActive())) {
+            throw new InactiveUserException();
+        }
+
         user.setEmailValidated(true);
         return UserResponse.toDto(user);
     }

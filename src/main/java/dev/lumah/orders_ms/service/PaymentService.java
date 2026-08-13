@@ -2,9 +2,7 @@ package dev.lumah.orders_ms.service;
 
 import dev.lumah.orders_ms.dto.request.CreatePaymentRequest;
 import dev.lumah.orders_ms.dto.response.PaymentResponse;
-import dev.lumah.orders_ms.exceptions.InsufficientPaymentException;
-import dev.lumah.orders_ms.exceptions.InvalidPaymentException;
-import dev.lumah.orders_ms.exceptions.PaymentNotFoundException;
+import dev.lumah.orders_ms.exceptions.*;
 import dev.lumah.orders_ms.model.*;
 import dev.lumah.orders_ms.repository.PaymentRepository;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -26,10 +24,10 @@ public class PaymentService {
 //    os services acima podiam ser substituidos por um microsserviço
 
     @Autowired
-    private PaymentRepository paymentRepository;
+    private UserService userService;
 
     @Autowired
-    private ValidationService validationService;
+    private PaymentRepository paymentRepository;
 
     @Value("${rabbitmq.notification.exchange}")
     private String NOTIFICATION_EXCHANGE;
@@ -43,9 +41,17 @@ public class PaymentService {
 
     public PaymentResponse createPayment(CreatePaymentRequest dto) {
 
-        User user = validationService.validateUser(dto.userId());
+        User user = userService.findUser(dto.userId());
 
-        Order order = validationService.validateOrder(dto.orderId());
+        if (!Boolean.TRUE.equals(user.getActive())) {
+            throw new InactiveUserException();
+        }
+
+        Order order = orderService.findOrder(dto.orderId());
+
+        if(order.getStatus() != OrderStatus.PAYMENT_PENDING){
+            throw new CantPayException();
+        }
 
         if(!Objects.equals(dto.total(), order.getTotal())) {
             throw new InsufficientPaymentException();

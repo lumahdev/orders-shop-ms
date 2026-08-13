@@ -3,7 +3,7 @@ package dev.lumah.orders_ms.service;
 import dev.lumah.orders_ms.dto.request.CreateOrderRequest;
 import dev.lumah.orders_ms.dto.request.CreateOrderItemRequest;
 import dev.lumah.orders_ms.dto.response.OrderResponse;
-import dev.lumah.orders_ms.exceptions.OrderNotFoundException;
+import dev.lumah.orders_ms.exceptions.*;
 import dev.lumah.orders_ms.model.*;
 import dev.lumah.orders_ms.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,13 @@ public class OrderService {
     private OrderRepository orderRepository;
 
     @Autowired
-    private ValidationService validationService;
+    private UserService userService;
+
+    @Autowired
+    private ProductService productService;
+
+    @Autowired
+    private OrderService orderService;
 
     private BigDecimal validateOrderDiscount(BigDecimal discount) {
         return Objects.requireNonNullElse(discount, BigDecimal.ZERO);
@@ -31,7 +37,14 @@ public class OrderService {
     }
 
     private OrderItem createOrderItem(CreateOrderItemRequest item) {
-        Product product = validationService.validateProduct(item.productId(), item.quantity());
+        Product product = productService.findProduct(item.productId());
+
+        if (!Boolean.TRUE.equals(product.getActive())) {
+            throw new InactiveProductException();
+        }
+        if (item.quantity() > product.getStock()) {
+            throw new InsufficientStockException();
+        }
 
         OrderItem orderItem = new OrderItem();
 
@@ -82,7 +95,11 @@ public class OrderService {
             BigDecimal total,
             BigDecimal discount) {
 
-        User user = validationService.validateUser(dto.userId());
+        User user = userService.findUser(dto.userId());
+
+        if (!Boolean.TRUE.equals(user.getActive())) {
+            throw new InactiveUserException();
+        }
 
         Order order = new Order();
 
@@ -128,7 +145,12 @@ public class OrderService {
     }
 
     public void changeOrderStatus(String id, OrderStatus status) {
-        Order order = validationService.validateOrder(id);
+        Order order = orderService.findOrder(id);
+
+        if(order.getStatus() != OrderStatus.PAYMENT_PENDING){
+            throw new CantPayException();
+        }
+
         order.setStatus(status);
         orderRepository.save(order);
     }

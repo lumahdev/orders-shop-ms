@@ -21,7 +21,7 @@ public class ProductService {
     private ProductRepository productRepository;
 
     @Autowired
-    private ValidationService validationService;
+    private ProductService productService;
 
     private BigDecimal getDiscount(BigDecimal discount) {
         return Objects.requireNonNullElse(discount, BigDecimal.ZERO);
@@ -62,7 +62,16 @@ public class ProductService {
     }
 
     public void deduceStock(String id, Integer quantity) {
-        Product product = validationService.validateProduct(id, quantity);
+        Product product = productService.findProduct(id);
+
+        if (!Boolean.TRUE.equals(product.getActive())) {
+            throw new InactiveProductException();
+        }
+
+        if (quantity > product.getStock()) {
+            throw new InsufficientStockException();
+        }
+
         product.setStock(product.getStock() - quantity);
         productRepository.save(product);
     }
