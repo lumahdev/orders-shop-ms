@@ -20,9 +20,6 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private UserLookupService userLookupService;
-
     private LocalDate getCreationDate(LocalDate date) {
         return Objects.requireNonNullElseGet(date, LocalDate::now);
     }
