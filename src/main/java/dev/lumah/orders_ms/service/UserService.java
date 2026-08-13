@@ -27,6 +27,10 @@ public class UserService {
         return Objects.requireNonNullElse(active, true);
     }
 
+    public User findUser(String id) {
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Usuário com id " + id + " não encontrado."));
+    }
+
     public UserResponse createUser(CreateUserRequest dto) {
         Address address = new Address();
         address.setCep(dto.address().cep());
@@ -58,12 +62,12 @@ public class UserService {
     }
 
     public UserResponse getUserById(String id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Usuário com id " + id + " não encontrado."));
+        User user = findUser(id);
         return UserResponse.toDto(user);
     }
 
     public UserResponse validateUserEmail(String id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Usuário com id " + id + " não encontrado."));
+        User user = findUser(id);
         user.setEmailValidated(true);
         return UserResponse.toDto(user);
     }
