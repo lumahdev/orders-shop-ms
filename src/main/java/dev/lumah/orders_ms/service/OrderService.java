@@ -25,7 +25,6 @@ public class OrderService {
     @Autowired
     private ProductService productService;
 
-
     private BigDecimal validateOrderDiscount(BigDecimal discount) {
         return Objects.requireNonNullElse(discount, BigDecimal.ZERO);
     }

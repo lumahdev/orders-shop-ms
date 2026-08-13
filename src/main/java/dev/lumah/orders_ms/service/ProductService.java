@@ -20,9 +20,6 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    @Autowired
-    private ProductService productService;
-
     private BigDecimal getDiscount(BigDecimal discount) {
         return Objects.requireNonNullElse(discount, BigDecimal.ZERO);
     }
@@ -62,7 +59,7 @@ public class ProductService {
     }
 
     public void deduceStock(String id, Integer quantity) {
-        Product product = productService.findProduct(id);
+        Product product = findProduct(id);
 
         if (!Boolean.TRUE.equals(product.getActive())) {
             throw new InactiveProductException();

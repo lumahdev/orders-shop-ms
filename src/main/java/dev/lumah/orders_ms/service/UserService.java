@@ -70,7 +70,7 @@ public class UserService {
     }
 
     public UserResponse validateUserEmail(String id) {
-        User user = userLookupService.findUser(id);
+        User user = findUser(id);
 
         if (!Boolean.TRUE.equals(user.getActive())) {
             throw new InactiveUserException();
