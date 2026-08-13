@@ -1,4 +1,4 @@
-package dev.lumah.payments_ms.controller;
+package dev.lumah.orders_ms.controller;
 
 import dev.lumah.orders_ms.dto.request.CreatePaymentRequest;
 import dev.lumah.orders_ms.dto.response.OrderResponse;
