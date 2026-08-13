@@ -25,35 +25,18 @@ public class OrderService {
     private OrderRepository orderRepository;
 
     @Autowired
-    private ProductRepository productRepository;
+    private ProductService productService;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     private BigDecimal validateOrderDiscount(BigDecimal discount) {
         return Objects.requireNonNullElse(discount, BigDecimal.ZERO);
     }
 
-    public OrderResponse createOrder(CreateOrderRequest dto) {
-
-        List<OrderItem> items = dto.items()
-                .stream()
-                .map(this::createOrderItem)
-                .toList();
-
-        BigDecimal total = calculateTotal(items);
-        BigDecimal discount = calculateDiscount(items);
-
-        Order order = buildOrder(dto, items, total, discount);
-
-        Order savedOrder = orderRepository.save(order);
-
-        return OrderResponse.toDto(savedOrder);
-    }
-
     private OrderItem createOrderItem(CreateOrderItemRequest item) {
 
-        Product product = productRepository.findById(item.productId()).orElseThrow(() -> new ProductNotFoundException("Product not found"));
+        Product product = productService.findProduct(item.productId());
 
         validateProduct(product, item.quantity());
 
@@ -75,7 +58,7 @@ public class OrderService {
         }
 
         if (quantity > product.getStock()) {
-            throw new InsufficientStockException("Insufficient stock for product: " + product.getId());
+            throw new InsufficientStockException("Estoque insuficiente para o produto " + product.getId());
         }
     }
 
@@ -117,7 +100,7 @@ public class OrderService {
             BigDecimal total,
             BigDecimal discount) {
 
-        User user = userRepository.findById(dto.userId()).orElseThrow(() -> new UserNotFoundException("User not found"));
+        User user = userService.findUser(dto.userId());
 
         if (!Boolean.TRUE.equals(user.getActive())) {
             throw new BusinessException("Usuário com id " + user.getId() + " inválido.");
@@ -138,6 +121,27 @@ public class OrderService {
         return order;
     }
 
+    public Order findOrder(String id) {
+        return orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Pedido não encontrado."));
+    }
+
+    public OrderResponse createOrder(CreateOrderRequest dto) {
+
+        List<OrderItem> items = dto.items()
+                .stream()
+                .map(this::createOrderItem)
+                .toList();
+
+        BigDecimal total = calculateTotal(items);
+        BigDecimal discount = calculateDiscount(items);
+
+        Order order = buildOrder(dto, items, total, discount);
+
+        Order savedOrder = orderRepository.save(order);
+
+        return OrderResponse.toDto(savedOrder);
+    }
+
     public List<OrderResponse> getAllOrders() {
         return orderRepository.findAll()
                 .stream()
@@ -146,7 +150,7 @@ public class OrderService {
     }
 
     public OrderResponse getOrderById(String id) {
-        Order order = orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Pedido não encontrado."));
+        Order order = findOrder(id);
         return OrderResponse.toDto(order);
     }
 
