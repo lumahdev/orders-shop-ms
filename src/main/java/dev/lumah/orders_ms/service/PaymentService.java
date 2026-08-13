@@ -2,12 +2,14 @@ package dev.lumah.orders_ms.service;
 
 import dev.lumah.orders_ms.dto.request.CreatePaymentRequest;
 import dev.lumah.orders_ms.dto.response.PaymentResponse;
-import dev.lumah.orders_ms.exceptions.CantPayException;
+import dev.lumah.orders_ms.exceptions.InsufficientPaymentException;
 import dev.lumah.orders_ms.exceptions.InvalidPaymentException;
 import dev.lumah.orders_ms.exceptions.PaymentNotFoundException;
 import dev.lumah.orders_ms.model.*;
 import dev.lumah.orders_ms.repository.PaymentRepository;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,6 +31,12 @@ public class PaymentService {
     @Autowired
     private ValidationService validationService;
 
+    @Value("${rabbitmq.notification.exchange}")
+    private String NOTIFICATION_EXCHANGE;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
     private Payment findPayment(String id) {
         return paymentRepository.findById(id).orElseThrow(PaymentNotFoundException::new);
     }
@@ -40,7 +48,7 @@ public class PaymentService {
         Order order = validationService.validateOrder(dto.orderId());
 
         if(!Objects.equals(dto.total(), order.getTotal())) {
-            throw new InvalidPaymentException();
+            throw new InsufficientPaymentException();
         }
 
         Payment payment = new Payment();
@@ -60,7 +68,17 @@ public class PaymentService {
             }
         }
 
-        return PaymentResponse.toDto(savedPayment);
+        PaymentResponse responseToDto = PaymentResponse.toDto(savedPayment);
+
+        switch(payment.getPaymentStatus()) {
+            case PaymentStatus.APPROVED -> rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.payment.approved", responseToDto);
+            case PaymentStatus.CANCELED -> rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.payment.canceled", responseToDto);
+            case PaymentStatus.EXPIRED -> rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.payment.expired", responseToDto);
+            case PaymentStatus.REFUSED -> rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.payment.refused", responseToDto);
+            default -> throw new InvalidPaymentException();
+        }
+
+        return responseToDto;
     }
 
     public List<PaymentResponse> getAllPayments() {

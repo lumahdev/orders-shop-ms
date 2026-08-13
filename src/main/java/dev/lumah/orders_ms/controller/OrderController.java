@@ -6,6 +6,7 @@ import dev.lumah.orders_ms.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,11 +22,14 @@ public class OrderController {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
+    @Value("${rabbitmq.notification.exchange}")
+    private String NOTIFICATION_EXCHANGE;
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public OrderResponse createOrder(@RequestBody @Valid CreateOrderRequest dto) {
         OrderResponse response = orderService.createOrder(dto);
-        rabbitTemplate.convertAndSend("queue.order.pendingPayment", response);
+        rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.order.created", response);
         return response;
     }
 

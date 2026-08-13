@@ -6,6 +6,7 @@ import dev.lumah.orders_ms.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,11 +22,14 @@ public class UserController {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
+    @Value("${rabbitmq.notification.exchange}")
+    private String NOTIFICATION_EXCHANGE;
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse createUser(@RequestBody @Valid CreateUserRequest dto) {
         UserResponse response = userService.createUser(dto);
-        rabbitTemplate.convertAndSend("queue.user.validateEmail", response);
+        rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.user.validate", response);
         return response;
     }
 
