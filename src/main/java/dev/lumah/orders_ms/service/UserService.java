@@ -2,6 +2,7 @@ package dev.lumah.orders_ms.service;
 
 import dev.lumah.orders_ms.dto.request.CreateUserRequest;
 import dev.lumah.orders_ms.dto.response.UserResponse;
+import dev.lumah.orders_ms.exceptions.BusinessException;
 import dev.lumah.orders_ms.exceptions.UserNotFoundException;
 import dev.lumah.orders_ms.model.Address;
 import dev.lumah.orders_ms.model.User;
@@ -29,6 +30,12 @@ public class UserService {
 
     public User findUser(String id) {
         return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Usuário com id " + id + " não encontrado."));
+    }
+
+    public void validateUser(User user) {
+        if (!Boolean.TRUE.equals(user.getActive())) {
+            throw new BusinessException("Usuário com id " + user.getId() + " inválido.");
+        }
     }
 
     public UserResponse createUser(CreateUserRequest dto) {

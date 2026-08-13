@@ -4,11 +4,7 @@ import dev.lumah.orders_ms.dto.request.CreatePaymentRequest;
 import dev.lumah.orders_ms.dto.response.PaymentResponse;
 import dev.lumah.orders_ms.exceptions.BusinessException;
 import dev.lumah.orders_ms.exceptions.OrderNotFoundException;
-import dev.lumah.orders_ms.exceptions.UserNotFoundException;
 import dev.lumah.orders_ms.model.*;
-import dev.lumah.orders_ms.repository.OrderRepository;
-import dev.lumah.orders_ms.repository.PaymentRepository;
-import dev.lumah.orders_ms.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,27 +14,19 @@ import java.util.List;
 public class PaymentService {
 
     @Autowired
-    private PaymentRepository paymentRepository;
-
-    @Autowired
-    private OrderRepository orderRepository;
-
-    @Autowired
     private OrderService orderService;
 
     @Autowired
     private ProductService productService;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     public PaymentResponse createPayment(CreatePaymentRequest dto) {
 
-        User user = userRepository.findById(dto.userId()).orElseThrow(() -> new UserNotFoundException("User not found"));
+        User user = userService.findUser(dto.userId());
 
-        if (!Boolean.TRUE.equals(user.getActive())) {
-            throw new BusinessException("Usuário com id " + user.getId() + " inválido.");
-        }
+        userService.validateUser(user);
 
         Order order = orderRepository.findById(dto.orderId()).orElseThrow(() -> new OrderNotFoundException("Order not found"));
 

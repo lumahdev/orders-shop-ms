@@ -5,12 +5,8 @@ import dev.lumah.orders_ms.dto.request.CreateOrderItemRequest;
 import dev.lumah.orders_ms.dto.response.OrderResponse;
 import dev.lumah.orders_ms.exceptions.BusinessException;
 import dev.lumah.orders_ms.exceptions.InsufficientStockException;
-import dev.lumah.orders_ms.exceptions.ProductNotFoundException;
-import dev.lumah.orders_ms.exceptions.UserNotFoundException;
 import dev.lumah.orders_ms.model.*;
 import dev.lumah.orders_ms.repository.OrderRepository;
-import dev.lumah.orders_ms.repository.ProductRepository;
-import dev.lumah.orders_ms.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -102,9 +98,7 @@ public class OrderService {
 
         User user = userService.findUser(dto.userId());
 
-        if (!Boolean.TRUE.equals(user.getActive())) {
-            throw new BusinessException("Usuário com id " + user.getId() + " inválido.");
-        }
+        userService.validateUser(user);
 
         Order order = new Order();
 
