@@ -2,9 +2,8 @@ package dev.lumah.orders_ms.service;
 
 import dev.lumah.orders_ms.dto.request.CreatePaymentRequest;
 import dev.lumah.orders_ms.dto.response.PaymentResponse;
-import dev.lumah.orders_ms.exceptions.BusinessException;
-import dev.lumah.orders_ms.exceptions.OrderNotFoundException;
 import dev.lumah.orders_ms.model.*;
+import dev.lumah.orders_ms.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +20,9 @@ public class PaymentService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
 
     public PaymentResponse createPayment(CreatePaymentRequest dto) {
 
