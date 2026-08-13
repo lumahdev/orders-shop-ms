@@ -1,20 +1,12 @@
 package dev.lumah.orders_ms.exceptions;
 
-import org.springframework.http.HttpStatusCode;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
+@ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
 public class RemoteServiceException extends RuntimeException {
 
-    private final HttpStatusCode status;
-
-    public RemoteServiceException(
-            HttpStatusCode status,
-            String message
-    ) {
+    public RemoteServiceException(String message) {
         super(message);
-        this.status = status;
-    }
-
-    public HttpStatusCode getStatus() {
-        return status;
     }
 }
