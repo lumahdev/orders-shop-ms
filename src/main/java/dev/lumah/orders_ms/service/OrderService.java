@@ -19,21 +19,16 @@ public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
-    @Autowired
-    private ProductService productService;
-
-    @Autowired
-    private UserService userService;
-
     private BigDecimal validateOrderDiscount(BigDecimal discount) {
         return Objects.requireNonNullElse(discount, BigDecimal.ZERO);
     }
 
+    private Order findOrder(String id) {
+        return orderRepository.findById(id).orElseThrow(OrderNotFoundException::new);
+    }
+
     private OrderItem createOrderItem(CreateOrderItemRequest item) {
-
-        Product product = productService.findProduct(item.productId());
-
-        validateProduct(product, item.quantity());
+        Product product = validateProduct(item.productId(), item.quantity());
 
         OrderItem orderItem = new OrderItem();
 
@@ -44,17 +39,6 @@ public class OrderService {
         orderItem.setQuantity(item.quantity());
 
         return orderItem;
-    }
-
-    private void validateProduct(Product product, Integer quantity) {
-
-        if (!Boolean.TRUE.equals(product.getActive())) {
-            throw new InactiveProductException();
-        }
-
-        if (quantity > product.getStock()) {
-            throw new InsufficientStockException();
-        }
     }
 
     private BigDecimal calculateTotal(List<OrderItem> items) {
@@ -95,9 +79,7 @@ public class OrderService {
             BigDecimal total,
             BigDecimal discount) {
 
-        User user = userService.findUser(dto.userId());
-
-        userService.validateUser(user);
+        User user = validateUser(dto.userId());
 
         Order order = new Order();
 
@@ -112,16 +94,6 @@ public class OrderService {
         order.setUserAddress(user.getAddress());
 
         return order;
-    }
-
-    public void validateOrder(Order order) {
-        if(order.getStatus() != OrderStatus.PAYMENT_PENDING){
-            throw new CantPayException();
-        }
-    }
-
-    public Order findOrder(String id) {
-        return orderRepository.findById(id).orElseThrow(OrderNotFoundException::new);
     }
 
     public OrderResponse createOrder(CreateOrderRequest dto) {
@@ -149,11 +121,11 @@ public class OrderService {
     }
 
     public OrderResponse getOrderById(String id) {
-        Order order = findOrder(id);
-        return OrderResponse.toDto(order);
+        return OrderResponse.toDto(findOrder(id));
     }
 
-    public void changeOrderStatus(Order order, OrderStatus status) {
+    public void changeOrderStatus(String id, OrderStatus status) {
+        Order order = validateOrder(id);
         order.setStatus(status);
         orderRepository.save(order);
     }

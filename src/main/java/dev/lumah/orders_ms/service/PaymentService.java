@@ -2,6 +2,7 @@ package dev.lumah.orders_ms.service;
 
 import dev.lumah.orders_ms.dto.request.CreatePaymentRequest;
 import dev.lumah.orders_ms.dto.response.PaymentResponse;
+import dev.lumah.orders_ms.exceptions.ProductNotFoundException;
 import dev.lumah.orders_ms.model.*;
 import dev.lumah.orders_ms.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,20 +20,17 @@ public class PaymentService {
     private ProductService productService;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private PaymentRepository paymentRepository;
+
+    private Payment findPayment(String id) {
+        return paymentRepository.findById(id).orElseThrow(PaymentNotFoundException::new);
+    }
 
     public PaymentResponse createPayment(CreatePaymentRequest dto) {
 
-        User user = userService.findUser(dto.userId());
+        User user = validateUser(dto.userId());
 
-        userService.validateUser(user);
-
-        Order order = orderService.findOrder(dto.orderId());
-
-        orderService.validateOrder(order);
+        Order order = validateOrder(dto.orderId());
 
         Payment payment = new Payment();
         
@@ -45,7 +43,7 @@ public class PaymentService {
         Payment savedPayment = paymentRepository.save(payment);
 
         if (payment.getPaymentStatus().equals(PaymentStatus.APPROVED)) {
-            orderService.changeOrderStatus(order, OrderStatus.PROCESSING);
+            orderService.changeOrderStatus(order.getId(), OrderStatus.PROCESSING);
             for (OrderItem item : order.getItems()) {
                 productService.deduceStock(item.getProductId(), item.getQuantity());
             }
@@ -62,7 +60,6 @@ public class PaymentService {
     }
 
     public PaymentResponse getPaymentById(String id) {
-        Payment payment = paymentRepository.findById(id).orElseThrow(() -> new RuntimeException("Pagamento não encontrado."));
-        return PaymentResponse.toDto(payment);
+        return PaymentResponse.toDto(findPayment(id));
     }
 }
