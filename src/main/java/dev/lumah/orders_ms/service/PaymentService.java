@@ -1,6 +1,7 @@
 package dev.lumah.orders_ms.service;
 
 import dev.lumah.orders_ms.dto.request.CreatePaymentRequest;
+import dev.lumah.orders_ms.dto.response.OrderResponse;
 import dev.lumah.orders_ms.dto.response.PaymentResponse;
 import dev.lumah.orders_ms.exceptions.*;
 import dev.lumah.orders_ms.model.*;
@@ -74,15 +75,15 @@ public class PaymentService {
             }
         }
 
-        PaymentResponse responseToDto = PaymentResponse.toDto(savedPayment);
+        OrderResponse orderDto = OrderResponse.toDto(order);
 
         switch(payment.getPaymentStatus()) {
-            case PaymentStatus.APPROVED -> rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.order.paid", responseToDto);
-            case PaymentStatus.REFUSED -> rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.order.payment-denied", responseToDto);
+            case PaymentStatus.APPROVED -> rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.order.paid",orderDto);
+            case PaymentStatus.REFUSED -> rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.order.payment-denied", orderDto);
             default -> throw new InvalidPaymentException();
         }
 
-        return responseToDto;
+        return PaymentResponse.toDto(savedPayment);
     }
 
     public List<PaymentResponse> getAllPayments() {
