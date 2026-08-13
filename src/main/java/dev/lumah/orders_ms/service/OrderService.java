@@ -25,8 +25,6 @@ public class OrderService {
     @Autowired
     private ProductService productService;
 
-    @Autowired
-    private OrderService orderService;
 
     private BigDecimal validateOrderDiscount(BigDecimal discount) {
         return Objects.requireNonNullElse(discount, BigDecimal.ZERO);
@@ -145,7 +143,7 @@ public class OrderService {
     }
 
     public void changeOrderStatus(String id, OrderStatus status) {
-        Order order = orderService.findOrder(id);
+        Order order = findOrder(id);
 
         if(order.getStatus() != OrderStatus.PAYMENT_PENDING){
             throw new CantPayException();

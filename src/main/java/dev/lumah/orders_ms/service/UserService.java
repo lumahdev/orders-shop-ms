@@ -21,7 +21,7 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private UserService userService;
+    private UserLookupService userLookupService;
 
     private LocalDate getCreationDate(LocalDate date) {
         return Objects.requireNonNullElseGet(date, LocalDate::now);
@@ -70,13 +70,14 @@ public class UserService {
     }
 
     public UserResponse validateUserEmail(String id) {
-        User user = userService.findUser(id);
+        User user = userLookupService.findUser(id);
 
         if (!Boolean.TRUE.equals(user.getActive())) {
             throw new InactiveUserException();
         }
 
         user.setEmailValidated(true);
+        userRepository.save(user);
         return UserResponse.toDto(user);
     }
 }
