@@ -3,8 +3,7 @@ package dev.lumah.orders_ms.service;
 import dev.lumah.orders_ms.dto.request.CreateOrderRequest;
 import dev.lumah.orders_ms.dto.request.CreateOrderItemRequest;
 import dev.lumah.orders_ms.dto.response.OrderResponse;
-import dev.lumah.orders_ms.exceptions.BusinessException;
-import dev.lumah.orders_ms.exceptions.InsufficientStockException;
+import dev.lumah.orders_ms.exceptions.*;
 import dev.lumah.orders_ms.model.*;
 import dev.lumah.orders_ms.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,11 +49,11 @@ public class OrderService {
     private void validateProduct(Product product, Integer quantity) {
 
         if (!Boolean.TRUE.equals(product.getActive())) {
-            throw new BusinessException("Produto com id " + product.getId() + " inválido.");
+            throw new InactiveProductException();
         }
 
         if (quantity > product.getStock()) {
-            throw new InsufficientStockException("Estoque insuficiente para o produto " + product.getId());
+            throw new InsufficientStockException();
         }
     }
 
@@ -117,12 +116,12 @@ public class OrderService {
 
     public void validateOrder(Order order) {
         if(order.getStatus() != OrderStatus.PAYMENT_PENDING){
-            throw new BusinessException("Pedido com id" + order.getId() + " inválido.");
+            throw new CantPayException();
         }
     }
 
     public Order findOrder(String id) {
-        return orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Pedido não encontrado."));
+        return orderRepository.findById(id).orElseThrow(OrderNotFoundException::new);
     }
 
     public OrderResponse createOrder(CreateOrderRequest dto) {

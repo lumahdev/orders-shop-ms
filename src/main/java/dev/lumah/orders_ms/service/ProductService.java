@@ -28,7 +28,7 @@ public class ProductService {
     }
 
     public Product findProduct(String id) {
-        return productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Produto com id " + id + " não encontrado."));
+        return productRepository.findById(id).orElseThrow(ProductNotFoundException::new);
     }
 
     public ProductResponse createProduct(CreateProductRequest dto) {
@@ -62,7 +62,7 @@ public class ProductService {
         Product product = findProduct(id);
 
         if (product.getStock() < quantity) {
-            throw new InsufficientStockException("Estoque insuficiente para o produto " + id);
+            throw new InsufficientStockException();
         }
 
         product.setStock(product.getStock() - quantity);
