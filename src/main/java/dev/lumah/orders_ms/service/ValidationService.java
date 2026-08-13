@@ -9,7 +9,9 @@ import dev.lumah.orders_ms.model.OrderStatus;
 import dev.lumah.orders_ms.model.Product;
 import dev.lumah.orders_ms.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ValidationService {
 
 	@Autowired
@@ -21,10 +23,7 @@ public class ValidationService {
 	@Autowired
 	private OrderService orderService;
 
-	@Autowired
-	private PaymentService paymentService;
-
-	public User validateUser(String id) {
+	User validateUser(String id) {
 		User user = userService.findUser(id);
 		if (!Boolean.TRUE.equals(user.getActive())) {
 			throw new InactiveUserException();
@@ -32,7 +31,7 @@ public class ValidationService {
 		return user;
 	}
 
-	public Product validateProduct(String id, Integer quantity) {
+	Product validateProduct(String id, Integer quantity) {
 		Product product = productService.findProduct(id);
 
 		if (!Boolean.TRUE.equals(product.getActive())) {
@@ -46,11 +45,13 @@ public class ValidationService {
 		return product;
 	}
 
-	public Order validateOrder(String id) {
+	Order validateOrder(String id) {
 		Order order = orderService.findOrder(id);
 
 		if(order.getStatus() != OrderStatus.PAYMENT_PENDING){
 			throw new CantPayException();
 		}
+		
+		return order;
 	}
 }

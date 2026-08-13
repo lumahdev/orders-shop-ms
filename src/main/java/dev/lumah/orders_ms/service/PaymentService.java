@@ -2,7 +2,7 @@ package dev.lumah.orders_ms.service;
 
 import dev.lumah.orders_ms.dto.request.CreatePaymentRequest;
 import dev.lumah.orders_ms.dto.response.PaymentResponse;
-import dev.lumah.orders_ms.exceptions.ProductNotFoundException;
+import dev.lumah.orders_ms.exceptions.PaymentNotFoundException;
 import dev.lumah.orders_ms.model.*;
 import dev.lumah.orders_ms.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,15 +22,18 @@ public class PaymentService {
     @Autowired
     private PaymentRepository paymentRepository;
 
+    @Autowired
+    private ValidationService validationService;
+
     private Payment findPayment(String id) {
         return paymentRepository.findById(id).orElseThrow(PaymentNotFoundException::new);
     }
 
     public PaymentResponse createPayment(CreatePaymentRequest dto) {
 
-        User user = validateUser(dto.userId());
+        User user = validationService.validateUser(dto.userId());
 
-        Order order = validateOrder(dto.orderId());
+        Order order = validationService.validateOrder(dto.orderId());
 
         Payment payment = new Payment();
         

@@ -19,6 +19,9 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ValidationService validationService;
+
     private LocalDate getCreationDate(LocalDate date) {
         return Objects.requireNonNullElseGet(date, LocalDate::now);
     }
@@ -27,7 +30,7 @@ public class UserService {
         return Objects.requireNonNullElse(active, true);
     }
 
-    private User findUser(String id) {
+    User findUser(String id) {
         return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
     }
 
@@ -66,7 +69,7 @@ public class UserService {
     }
 
     public UserResponse validateUserEmail(String id) {
-        User user = findUser(id);
+        User user = validationService.validateUser(id);
         user.setEmailValidated(true);
         return UserResponse.toDto(user);
     }

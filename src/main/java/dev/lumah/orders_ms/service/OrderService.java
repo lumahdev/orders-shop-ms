@@ -3,7 +3,7 @@ package dev.lumah.orders_ms.service;
 import dev.lumah.orders_ms.dto.request.CreateOrderRequest;
 import dev.lumah.orders_ms.dto.request.CreateOrderItemRequest;
 import dev.lumah.orders_ms.dto.response.OrderResponse;
-import dev.lumah.orders_ms.exceptions.*;
+import dev.lumah.orders_ms.exceptions.OrderNotFoundException;
 import dev.lumah.orders_ms.model.*;
 import dev.lumah.orders_ms.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,16 +19,19 @@ public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private ValidationService validationService;
+
     private BigDecimal validateOrderDiscount(BigDecimal discount) {
         return Objects.requireNonNullElse(discount, BigDecimal.ZERO);
     }
 
-    private Order findOrder(String id) {
+    Order findOrder(String id) {
         return orderRepository.findById(id).orElseThrow(OrderNotFoundException::new);
     }
 
     private OrderItem createOrderItem(CreateOrderItemRequest item) {
-        Product product = validateProduct(item.productId(), item.quantity());
+        Product product = validationService.validateProduct(item.productId(), item.quantity());
 
         OrderItem orderItem = new OrderItem();
 
@@ -79,7 +82,7 @@ public class OrderService {
             BigDecimal total,
             BigDecimal discount) {
 
-        User user = validateUser(dto.userId());
+        User user = validationService.validateUser(dto.userId());
 
         Order order = new Order();
 
@@ -125,7 +128,7 @@ public class OrderService {
     }
 
     public void changeOrderStatus(String id, OrderStatus status) {
-        Order order = validateOrder(id);
+        Order order = validationService.validateOrder(id);
         order.setStatus(status);
         orderRepository.save(order);
     }
