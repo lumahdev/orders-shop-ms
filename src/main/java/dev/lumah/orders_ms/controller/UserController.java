@@ -29,7 +29,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse createUser(@RequestBody @Valid CreateUserRequest dto) {
         UserResponse response = userService.createUser(dto);
-        rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.user.validate", response);
+        rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.user.validation", response);
         return response;
     }
 

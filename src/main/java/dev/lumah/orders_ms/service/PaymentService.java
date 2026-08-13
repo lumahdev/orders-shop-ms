@@ -71,8 +71,8 @@ public class PaymentService {
         PaymentResponse responseToDto = PaymentResponse.toDto(savedPayment);
 
         switch(payment.getPaymentStatus()) {
-            case PaymentStatus.APPROVED -> rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.payment.approved", responseToDto);
-            case PaymentStatus.REFUSED -> rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.payment.refused", responseToDto);
+            case PaymentStatus.APPROVED -> rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.order.paid", responseToDto);
+            case PaymentStatus.REFUSED -> rabbitTemplate.convertAndSend(NOTIFICATION_EXCHANGE, "email.order.payment-denied", responseToDto);
             default -> throw new InvalidPaymentException();
         }
 
