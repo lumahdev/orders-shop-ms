@@ -7,7 +7,6 @@ import dev.lumah.orders_ms.model.Order;
 import java.math.BigDecimal;
 import java.util.List;
 
-//@Builder
 public record OrderResponse(
         String id,
         String userId,

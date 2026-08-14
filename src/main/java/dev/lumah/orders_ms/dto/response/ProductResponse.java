@@ -1,11 +1,9 @@
 package dev.lumah.orders_ms.dto.response;
 
 import dev.lumah.orders_ms.model.Product;
-import lombok.Builder;
 
 import java.math.BigDecimal;
 
-//@Builder
 public record ProductResponse(
         String id,
         String name,

@@ -20,10 +20,6 @@ public class PaymentController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PaymentResponse createPayment(@RequestBody @Valid CreatePaymentRequest dto) {
-//        PaymentResponse response = paymentService.createPayment(dto);
-//        OrderResponse orderResponse = OrderResponse.toDto(order);
-//        rabbitTemplate.convertAndSend("queue.orders.paidOrder", orderResponse);
-//        return response;
         return paymentService.createPayment(dto);
     }
 

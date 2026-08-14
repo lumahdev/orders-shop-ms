@@ -2,11 +2,9 @@ package dev.lumah.orders_ms.dto.response;
 
 import dev.lumah.orders_ms.model.Address;
 import dev.lumah.orders_ms.model.User;
-import lombok.Builder;
 
 import java.time.LocalDate;
 
-//@Builder
 public record UserResponse(
         String id,
         String name,

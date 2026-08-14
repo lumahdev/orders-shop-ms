@@ -1,10 +1,7 @@
 package dev.lumah.orders_ms.dto.response;
 
 import dev.lumah.orders_ms.model.Address;
-import lombok.Builder;
 
-
-//@Builder
 public record AddressResponse(
         String cep,
         String street,
