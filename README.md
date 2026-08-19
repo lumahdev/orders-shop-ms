@@ -1,4 +1,4 @@
-# 🛒 Microsserviço de E-mail para Loja Virtual
+# 🛒 API de Sistema de Pedidos com Mensageria para Enviar E-mails
 ## ⚠️ Este repositório é um submódulo [deste repositório](https://github.com/lumahdev/shop-ms)
 
 Neste projeto, realizei uma simulação de um microsserviço para o envio de e-mails baseado nos eventos comumente disparados em uma loja virtual.
